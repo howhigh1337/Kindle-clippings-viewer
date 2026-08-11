@@ -1080,7 +1080,20 @@ function getFiltered(){
   else if(sortMode==='date-asc') list.sort((a,b)=>(a.dateObj?.getTime()||0)-(b.dateObj?.getTime()||0));
   else if(sortMode==='loc-asc') list.sort((a,b)=>(a.locStart??1e9)-(b.locStart??1e9));
   else if(sortMode==='book') list.sort((a,b)=>a.book.localeCompare(b.book) || (a.locStart??0)-(b.locStart??0));
+  else if(sortMode==='size-desc') list.sort((a,b)=>clipSize(b)-clipSize(a));
+  else if(sortMode==='size-asc') list.sort((a,b)=>clipSize(a)-clipSize(b));
   return list;
+}
+
+// Returns the size of a clipping's text, used for size-based sorting.
+// Counts words (whitespace-separated tokens) since that's the more
+// meaningful measure of a highlight's "length" for a reader; falls back to
+// 0 for entries with no text (e.g. bookmark markers).
+function clipSize(e){
+  if(!e.text) return 0;
+  const trimmed = e.text.trim();
+  if(!trimmed) return 0;
+  return trimmed.split(/\s+/).length;
 }
 
 function renderStats(){
@@ -1121,6 +1134,8 @@ function renderMain(keepRenderLimit){
         <option value="date-asc">Oldest first</option>
         <option value="loc-asc">Location, ascending</option>
         <option value="book">Book, then location</option>
+        <option value="size-desc">Longest first</option>
+        <option value="size-asc">Shortest first</option>
       </select>
       <div class="right">
         <button class="icon-btn" id="copyAllBtn">
